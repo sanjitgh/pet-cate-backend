@@ -93,14 +93,25 @@ async function run() {
 
     // get all pets 
     app.get('/pets', async (req, res) => {
-      const result = await petCollection.find().toArray();
+      const filter = req.query.filter;
+      const search = req.query.search;
+      let query = {};
+
+      if (search) query.name = {
+        $regex: search,
+        $options: 'i'
+      }
+
+      if (filter) query.category = filter;
+
+      const result = await petCollection.find(query).toArray();
       res.send(result)
     })
 
     // get pets by user email
     app.get('/my-pet', async (req, res) => {
       const email = req.query.email;
-      const query = {email: email}
+      const query = { email: email }
       const result = await petCollection.find(query).toArray();
       res.send(result)
     })
