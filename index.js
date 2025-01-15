@@ -91,6 +91,12 @@ async function run() {
       res.send(result);
     })
 
+    // get all pets 
+    app.get('/pets', async (req, res) => {
+      const result = await petCollection.find().toArray();
+      res.send(result)
+    })
+
     // get pets by user email
     app.get('/my-pet', async (req, res) => {
       const email = req.query.email;
