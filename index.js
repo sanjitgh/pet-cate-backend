@@ -85,12 +85,19 @@ async function run() {
     })
 
     // create pets 
-    app.post('/pets', async(req, res)=>{
+    app.post('/pets', async (req, res) => {
       const pet = req.body;
       const result = await petCollection.insertOne(pet);
       res.send(result);
     })
 
+    // get pets by user email
+    app.get('/my-pet', async (req, res) => {
+      const email = req.query.email;
+      const query = {email: email}
+      const result = await petCollection.find(query).toArray();
+      res.send(result)
+    })
 
 
   } finally {
