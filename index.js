@@ -106,10 +106,18 @@ async function run() {
       const result = await adoptionRequestCollection.insertOne(adoption);
       res.send(result);
     })
-    
+
     // get all donations
     app.get('/donations', async (req, res) => {
       const result = await donationCollection.find().toArray();
+      res.send(result)
+    })
+
+    // get donation by id
+    app.get('/donations/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationCollection.find(query).toArray();
       res.send(result)
     })
 
