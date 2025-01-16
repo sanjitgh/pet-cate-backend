@@ -48,6 +48,7 @@ async function run() {
   try {
     const userCollection = client.db("petCere").collection("users");
     const petCollection = client.db("petCere").collection("pets");
+    const adoptionRequestCollection = client.db("petCere").collection("adoptionRequest");
 
 
     // generate jws 
@@ -91,6 +92,13 @@ async function run() {
       res.send(result);
     })
 
+    // create adoption request 
+    app.post('/adoptionRequest', verifyToken, async (req, res) => {
+      const adoption = req.body;
+      const result = await adoptionRequestCollection.insertOne(adoption);
+      res.send(result);
+    })
+
     // get all pets 
     app.get('/pets', async (req, res) => {
       const filter = req.query.filter;
@@ -109,7 +117,7 @@ async function run() {
     })
 
     // get pets by user email
-    app.get('/my-pet', async (req, res) => {
+    app.get('/my-pet', verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { email: email }
       const result = await petCollection.find(query).toArray();
@@ -117,9 +125,9 @@ async function run() {
     })
 
     // get pets by id
-    app.get('/pet/:id',verifyToken, async(req, res)=>{
+    app.get('/pet/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await petCollection.find(query).toArray();
       res.send(result)
     })
