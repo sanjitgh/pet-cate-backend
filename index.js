@@ -47,6 +47,7 @@ const verifyToken = (req, res, next) => {
 async function run() {
   try {
     const userCollection = client.db("petCere").collection("users");
+    const donationCollection = client.db("petCere").collection("donationsCampaign");
     const petCollection = client.db("petCere").collection("pets");
     const adoptionRequestCollection = client.db("petCere").collection("adoptionRequest");
 
@@ -92,11 +93,24 @@ async function run() {
       res.send(result);
     })
 
+    // create donation 
+    app.post('/donationsCampaign', verifyToken, async (req, res) => {
+      const donation = req.body;
+      const result = await donationCollection.insertOne(donation);
+      res.send(result);
+    })
+
     // create adoption request 
     app.post('/adoptionRequest', verifyToken, async (req, res) => {
       const adoption = req.body;
       const result = await adoptionRequestCollection.insertOne(adoption);
       res.send(result);
+    })
+    
+    // get all donations
+    app.get('/donations', async (req, res) => {
+      const result = await donationCollection.find().toArray();
+      res.send(result)
     })
 
     // get all pets 
