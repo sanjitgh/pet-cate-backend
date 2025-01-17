@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser')
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 
 // middelware
@@ -47,9 +48,10 @@ const verifyToken = (req, res, next) => {
 async function run() {
   try {
     const userCollection = client.db("petCere").collection("users");
-    const donationCollection = client.db("petCere").collection("donationsCampaign");
     const petCollection = client.db("petCere").collection("pets");
     const adoptionRequestCollection = client.db("petCere").collection("adoptionRequest");
+    const donationCollection = client.db("petCere").collection("donationsCampaign");
+    const donationHistoryCollection = client.db("petCere").collection("donationHistory");
 
 
     // generate jws 
@@ -93,10 +95,17 @@ async function run() {
       res.send(result);
     })
 
-    // create donation 
+    // create donation campaign
     app.post('/donationsCampaign', verifyToken, async (req, res) => {
       const donation = req.body;
       const result = await donationCollection.insertOne(donation);
+      res.send(result);
+    })
+
+    // create donation history
+    app.post('/donationsHistory', verifyToken, async (req, res) => {
+      const donationHistory = req.body;
+      const result = await donationHistoryCollection.insertOne(donationHistory);
       res.send(result);
     })
 
@@ -153,6 +162,31 @@ async function run() {
       const result = await petCollection.find(query).toArray();
       res.send(result)
     })
+
+    // payment intent
+    app.post('/create-payment-intent', async (req, res) => {
+      const { price } = req.body;
+
+      if (!price || price <= 0) {
+        return res.status(400).json({ error: 'Invalid price provided' });
+      }
+
+      try {
+        const amount = parseInt(price * 100);
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: 'usd',
+          payment_method_types: ['card'],
+        });
+
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
 
 
   } finally {
