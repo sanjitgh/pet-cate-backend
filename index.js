@@ -102,10 +102,24 @@ async function run() {
       res.send(result);
     })
 
+    // update donatain amount
+    app.patch('/donationAmountUpdate/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const itemPrice = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          donatedAmount: itemPrice.donatedAmount,
+        }
+      }
+      const result = await donationCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
     // create donation history
     app.post('/donationsHistory', verifyToken, async (req, res) => {
-      const donationHistory = req.body;
-      const result = await donationHistoryCollection.insertOne(donationHistory);
+      const donationInfo = req.body;
+      const result = await donationHistoryCollection.insertOne(donationInfo);
       res.send(result);
     })
 
