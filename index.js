@@ -136,6 +136,20 @@ async function run() {
       res.send(result);
     })
 
+    // update donatain status
+    app.patch('/donationStatus/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const itemStatus = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: itemStatus.status,
+        }
+      }
+      const result = await donationCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
     // create donation history
     app.post('/donationsHistory', verifyToken, async (req, res) => {
       const donationInfo = req.body;
