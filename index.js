@@ -102,6 +102,26 @@ async function run() {
       res.send(result);
     })
 
+
+    // update donation campaign
+    app.patch('/donationsCampaign/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const item = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          donationLastDate: item.donationLastDate,
+          petName: item.petName,
+          maxDonationAmount: item.maxDonationAmount,
+          sortDescription: item.sortDescription,
+          longDescription: item.longDescription,
+          petImage: item.petImage,
+        }
+      }
+      const result = await donationCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
     // update donatain amount
     app.patch('/donationAmountUpdate/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -123,6 +143,13 @@ async function run() {
       res.send(result);
     })
 
+
+    // get donation history
+    app.get('/donationsHistory', verifyToken, async (req, res) => {
+      const result = await donationHistoryCollection.find().toArray()
+      res.send(result);
+    })
+
     // create adoption request 
     app.post('/adoptionRequest', verifyToken, async (req, res) => {
       const adoption = req.body;
@@ -135,6 +162,14 @@ async function run() {
       const result = await donationCollection.find().toArray();
       res.send(result)
     })
+
+    // get donation by user email
+    app.get('/my-donation/:email', verifyToken, async (req, res) => {
+      const query = { donationCreator: req.params.email }
+      const result = await donationCollection.find(query).toArray();
+      res.send(result)
+    })
+
 
     // get donation by id
     app.get('/donations/:id', verifyToken, async (req, res) => {
