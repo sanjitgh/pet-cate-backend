@@ -75,7 +75,6 @@ async function run() {
         .send({ success: true })
     })
 
-
     // save and update user data
     app.post('/users', async (req, res) => {
       const user = req.body;
@@ -87,6 +86,27 @@ async function run() {
       const result = await userCollection.insertOne(user);
       res.send(result);
     })
+
+    // get all user data
+    app.get('/users', verifyToken, async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    })
+
+
+    // update user role
+    app.patch('/user-role/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
 
     // create pets 
     app.post('/pets', async (req, res) => {
