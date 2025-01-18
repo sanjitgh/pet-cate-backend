@@ -129,13 +129,29 @@ async function run() {
       const result = await petCollection.updateOne(query, update);
       res.send(result);
     });
-    
+
 
     // delete pet
     app.delete('/pets/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await petCollection.deleteOne(query);
+      res.send(result)
+    })
+
+    // delete donation
+    app.delete('/donations/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationCollection.deleteOne(query);
+      res.send(result)
+    })
+
+    // delete my donations
+    app.delete('/my-donations-remove/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationHistoryCollection.deleteOne(query);
       res.send(result)
     })
 
@@ -215,6 +231,12 @@ async function run() {
       res.send(result);
     })
 
+    // get adoption request 
+    app.get('/adoptionRequest', async (req, res) => {
+      const result = await adoptionRequestCollection.find().toArray();
+      res.send(result);
+    })
+
     // get all donations
     app.get('/donations', async (req, res) => {
       const result = await donationCollection.find().toArray();
@@ -228,6 +250,24 @@ async function run() {
       res.send(result)
     })
 
+    // get who is donate my donation campaign
+    app.get('/campaign-donation-data/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { donationCreator: email };
+      const result = await donationHistoryCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    // remove my donation history
+
+
+    // get donation history where i already donation
+    app.get('/my-donations-history/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { paymentUserEmail: email };
+      const result = await donationHistoryCollection.find(query).toArray();
+      res.send(result)
+    })
 
     // get donation by id
     app.get('/donations/:id', verifyToken, async (req, res) => {
@@ -241,6 +281,7 @@ async function run() {
     app.get('/pets', async (req, res) => {
       const filter = req.query.filter;
       const search = req.query.search;
+      const adopted = req.query.adopted;
       let query = {};
 
       if (search) query.name = {
@@ -249,6 +290,8 @@ async function run() {
       }
 
       if (filter) query.category = filter;
+
+      if (adopted) query.adopted = adopted;
 
       const result = await petCollection.find(query).toArray();
       res.send(result)
