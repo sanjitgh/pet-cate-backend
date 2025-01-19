@@ -254,9 +254,31 @@ async function run() {
 
     // get all donations
     app.get('/donations', async (req, res) => {
-      const result = await donationCollection.find().toArray();
-      res.send(result)
-    })
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 6;
+      const skip = (page - 1) * limit;
+
+      try {
+        const total = await donationCollection.countDocuments();
+        const donations = await donationCollection
+          .find()
+          .sort({ postedDate: -1 })
+          .skip(skip)
+          .limit(limit)
+          .toArray();
+
+        res.send({
+          data: donations,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total,
+        });
+      } catch (error) {
+
+        res.status(500).send({ error: "Failed to fetch donations." });
+      }
+    });
+
 
     // get limit donations for recommended
     app.get('/donations-recommend', async (req, res) => {
