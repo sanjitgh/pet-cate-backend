@@ -130,7 +130,6 @@ async function run() {
       res.send(result);
     });
 
-
     // delete pet
     app.delete('/pets/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -217,7 +216,6 @@ async function run() {
       res.send(result);
     })
 
-
     // get donation history
     app.get('/donationsHistory', verifyToken, async (req, res) => {
       const result = await donationHistoryCollection.find().toArray()
@@ -254,10 +252,15 @@ async function run() {
     });
 
 
-
     // get all donations
     app.get('/donations', async (req, res) => {
       const result = await donationCollection.find().toArray();
+      res.send(result)
+    })
+
+    // get limit donations for recommended
+    app.get('/donations-recommend', async (req, res) => {
+      const result = await donationCollection.aggregate([{ $sample: { size: 3 } }]).toArray();
       res.send(result)
     })
 
@@ -275,8 +278,6 @@ async function run() {
       const result = await donationHistoryCollection.find(query).toArray();
       res.send(result);
     })
-
-    // remove my donation history
 
 
     // get donation history where i already donation
@@ -316,8 +317,8 @@ async function run() {
     })
 
     // get pets by user email
-    app.get('/my-pet', verifyToken, async (req, res) => {
-      const email = req.query.email;
+    app.get('/my-pet/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
       const query = { email: email }
       const result = await petCollection.find(query).toArray();
       res.send(result)
