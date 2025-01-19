@@ -320,21 +320,32 @@ async function run() {
 
     // get all pets 
     app.get('/pets', async (req, res) => {
-      const filter = req.query.filter;
-      const search = req.query.search;
-      const adopted = req.query.adopted;
-      let query = {};
+      const { filter, search, adopted, page = 1, limit = 6 } = req.query;
+      const query = {};
 
-      if (search) query.name = {
-        $regex: search,
-        $options: 'i'
-      }
-
+      if (search) query.name = { $regex: search, $options: 'i' };
       if (filter) query.category = filter;
-
       if (adopted) query.adopted = adopted;
 
-      const result = await petCollection.find(query).toArray();
+      const pets = await petCollection
+        .find(query)
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .sort({ date: -1 })
+        .toArray();
+
+      const totalPets = await petCollection.countDocuments(query);
+      const totalPages = Math.ceil(totalPets / limit);
+
+      res.send({
+        data: pets,
+        currentPage: parseInt(page),
+        totalPages: totalPages,
+      });
+    });
+
+    app.get('/all-pet', verifyToken, async (req, res) => {
+      const result = await petCollection.find().toArray();
       res.send(result)
     })
 
@@ -377,8 +388,6 @@ async function run() {
         res.status(500).json({ error: error.message });
       }
     });
-
-
 
   } finally {
     // await client.close();
