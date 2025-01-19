@@ -232,10 +232,28 @@ async function run() {
     })
 
     // get adoption request 
-    app.get('/adoptionRequest', async (req, res) => {
-      const result = await adoptionRequestCollection.find().toArray();
+    app.get('/adoptionRequest/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { hostEmail: email }
+      const result = await adoptionRequestCollection.find(query).toArray();
       res.send(result);
     })
+
+    // update adoption request status
+    app.patch("/adoptionStatusRequests/:id", async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: { status }
+      }
+      const result = await adoptionRequestCollection.updateOne(query, updatedDoc
+      );
+
+      res.send(result);
+    });
+
+
 
     // get all donations
     app.get('/donations', async (req, res) => {
