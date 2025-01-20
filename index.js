@@ -130,6 +130,28 @@ async function run() {
       res.send(result);
     });
 
+    // update pet 
+    app.patch('/update-pet/:id', async (req, res) => {
+      const id = req.params.id;
+      const item = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          name: item.name,
+          age: item.age,
+          location: item.location,
+          pet_description: item.pet_description,
+          pet_owner_description: item.pet_owner_description,
+          category: item.category,
+          image: item.image,
+          adopted: item.adopted,
+          email: item.email,
+        }
+      }
+      const result = await petCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     // delete pet
     app.delete('/pets/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -280,6 +302,13 @@ async function run() {
     });
 
 
+    // get all donations for admin
+    app.get('/all-donations', verifyToken, async (req, res) => {
+      const result = await donationCollection.find().toArray();
+      res.send(result);
+    })
+
+
     // get limit donations for recommended
     app.get('/donations-recommend', async (req, res) => {
       const result = await donationCollection.aggregate([{ $sample: { size: 3 } }]).toArray();
@@ -300,7 +329,6 @@ async function run() {
       const result = await donationHistoryCollection.find(query).toArray();
       res.send(result);
     })
-
 
     // get donation history where i already donation
     app.get('/my-donations-history/:email', verifyToken, async (req, res) => {
