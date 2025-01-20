@@ -15,6 +15,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
+    'https://petcare-1777f.web.app'
   ],
   credentials: true
 }));
@@ -426,7 +427,7 @@ run().catch(console.dir);
 
 // view on server UI
 app.get("/", (req, res) => {
-  res.send("Server is runing")
+  res.send("PetCare Server is runing")
 })
 
 app.listen(port, () => {
