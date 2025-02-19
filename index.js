@@ -70,7 +70,6 @@ async function run() {
     // clear cookie from the browser
     app.post('/logout', async (req, res) => {
       const user = req.body;
-      console.log('logging out', user);
       res
         .clearCookie('token', { maxAge: 0, sameSite: 'none', secure: true })
         .send({ success: true })
@@ -340,7 +339,7 @@ async function run() {
     })
 
     // get donation by id
-    app.get('/donations/:id', verifyToken, async (req, res) => {
+    app.get('/donations/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await donationCollection.find(query).toArray();
@@ -387,7 +386,7 @@ async function run() {
     })
 
     // get pets by id
-    app.get('/pet/:id', verifyToken, async (req, res) => {
+    app.get('/pet/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await petCollection.find(query).toArray();
@@ -427,7 +426,7 @@ run().catch(console.dir);
 
 // view on server UI
 app.get("/", (req, res) => {
-  res.send("PetCare Server is runing")
+  res.send("PetCare Express Server is runing")
 })
 
 app.listen(port, () => {
