@@ -302,9 +302,15 @@ async function run() {
     });
 
 
-    // get all donations for admin
-    app.get('/all-donations', verifyToken, async (req, res) => {
+    // get all donations 
+    app.get('/all-donations',  async (req, res) => {
       const result = await donationCollection.find().toArray();
+      res.send(result);
+    })
+
+    // get all donations history
+    app.get('/donations-history', async (req, res) => {
+      const result = await donationHistoryCollection.find().toArray();
       res.send(result);
     })
 
@@ -372,7 +378,7 @@ async function run() {
       });
     });
 
-    app.get('/all-pet', verifyToken, async (req, res) => {
+    app.get('/all-pet', async (req, res) => {
       const result = await petCollection.find().toArray();
       res.send(result)
     })
